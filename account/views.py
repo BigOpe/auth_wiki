@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
+from .models import Signup, Entry
 
 
 from account.forms import SignupForm
@@ -27,3 +28,21 @@ def signup(request):
     else:
         form =SignupForm()
     return render(request, 'signup.html',{'form':form})
+
+def edit_entry(request, entry_id):
+    """Edit an existing entry."""
+    entry = Entry.objects.get(id=entry_id)
+    topic= entry.topic
+
+    if request.method != 'POST':
+        form = SignupForm(instance=entry)
+    else:
+        form= SignupForm(instance=entry, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('topic', topic_id=topic.id)
+
+    context = {'entry': entry, 'topic': topic, 'form': form}
+    return render(request, 'edit_entry.html', context)
+
+    
